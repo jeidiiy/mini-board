@@ -4,7 +4,8 @@
   "description": "",
   "main": "script.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "json-server --watch db.json"
   },
   "repository": {
     "type": "git",
@@ -16,5 +17,8 @@
   "bugs": {
     "url": "https://github.com/wscrg/mini-board/issues"
   },
-  "homepage": "https://github.com/wscrg/mini-board#readme"
+  "homepage": "https://github.com/wscrg/mini-board#readme",
+  "devDependencies": {
+    "json-server": "^0.16.3"
+  }
 }
