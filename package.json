@@ -20,5 +20,8 @@
   "homepage": "https://github.com/wscrg/mini-board#readme",
   "devDependencies": {
     "json-server": "^0.16.3"
+  },
+  "dependencies": {
+    "node-sass": "^5.0.0"
   }
 }
