@@ -4,7 +4,7 @@ const table = document.querySelector('.table');
 const btnList = document.querySelector('.btn-number');
 const btnPrev = document.querySelector('.btn-prev');
 const btnNext = document.querySelector('.btn-next');
-const url = 'http://localhost:3000/posts';
+const url = 'https://github.com/wscrg/mini-board/blob/main/db.json';
 
 let isInit = true; // 초기화 여부 체크
 let currentPage = 1; // 현재 페이지 상태값. 기본값은 1
