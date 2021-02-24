@@ -19,13 +19,12 @@ const fetchDataAndReplaceList = async url => {
 };
 
 const createList = data => {
-  const dataName = ['id', 'title', 'name', 'date', ' views'];
+  const dataName = Object.keys(data[0]);
   const fragment = document.createDocumentFragment();
 
   for (let i = 0; i < data.length; i++) {
     const info = data[i];
-    const { id, title, name, date, views } = info;
-    const dataArr = [id, title, name, date, views];
+    const dataArr = Object.values(info);
 
     const tr = document.createElement('tr');
 
@@ -33,7 +32,7 @@ const createList = data => {
       const td = document.createElement('td');
       td.className = dataName[i];
       td.textContent = dataArr[i];
-      tr.appendChild(td);
+      tr.append(td);
     }
 
     fragment.appendChild(tr);
@@ -45,7 +44,7 @@ const createList = data => {
 const createBtnList = () => {
   const fragment = document.createDocumentFragment();
 
-  if (currentPage === 1 || currentPage === 5) {
+  if (currentPage === 1 || currentPage === pageShowed) {
     // 맨 처음 로딩됐을 때 or 6~10 페이지에서 prev으로 뒤돌아왔을 때
     for (let i = 0; i < pageShowed; i++) {
       const btn = document.createElement('button');
@@ -70,7 +69,6 @@ const createBtnList = () => {
 const removeItems = (element, start) => {
   const listArr = Array.from(element.children);
   for (let i = start; i < listArr.length; i++) {
-    // 첫 행 삭제 방지를 위해 1부터 시작
     element.removeChild(listArr[i]);
   }
 };
@@ -131,8 +129,11 @@ const changeCurrentStyle = target => {
 };
 
 const init = () => {
+  // 첫 렌더링
   fetchDataAndReplaceList(`${url}?_page=1`);
   createBtnList();
+
+  // 이벤트 등록
   btnList.addEventListener('click', putRequest);
   btnPrev.addEventListener('click', movePrevpage);
   btnNext.addEventListener('click', moveNextpage);
