@@ -1,19 +1,20 @@
 import './style.scss';
 
 const table = document.querySelector('.table');
-const btnList = document.querySelector('.btn-list');
+const btnList = document.querySelector('.btn-number');
 const btnPrev = document.querySelector('.btn-prev');
 const btnNext = document.querySelector('.btn-next');
 const url = 'http://localhost:3000/posts';
 
 let currentPage = 1; // 현재 페이지 상태값. 기본값은 1
-let fullPageNum;
+let fullpageNum; // 전체 페이지 수
+const pageShowed = 5; // 보여질 페이지 수
 
 const fetchDataAndReplaceList = async url => {
   const response = await fetch(url);
   const posts = await response.json();
 
-  fullPageNum = posts.length;
+  fullpageNum = posts.length;
   createList(posts);
 };
 
@@ -41,10 +42,34 @@ const createList = data => {
   table.appendChild(fragment);
 };
 
-const removeData = element => {
-  // children은 Live DOM 객체기 때문에 객체로 변환하여 처리함
+const createBtnList = () => {
+  const fragment = document.createDocumentFragment();
+
+  if (currentPage === 1 || currentPage === 5) {
+    // 맨 처음 로딩됐을 때 or 6~10 페이지에서 prev으로 뒤돌아왔을 때
+    for (let i = 0; i < pageShowed; i++) {
+      const btn = document.createElement('button');
+      btn.textContent = i + 1;
+      btn.classList.add('btn');
+      fragment.appendChild(btn);
+    }
+    btnList.appendChild(fragment);
+    btnList.firstChild.classList.add('current');
+  } else if (currentPage === 6) {
+    for (let i = 0; i < pageShowed; i++) {
+      const btn = document.createElement('button');
+      btn.textContent = currentPage + i;
+      btn.classList.add('btn');
+      fragment.appendChild(btn);
+    }
+    btnList.appendChild(fragment);
+    btnList.firstChild.classList.add('current');
+  }
+};
+
+const removeItems = (element, start) => {
   const listArr = Array.from(element.children);
-  for (let i = 1; i < listArr.length; i++) {
+  for (let i = start; i < listArr.length; i++) {
     // 첫 행 삭제 방지를 위해 1부터 시작
     element.removeChild(listArr[i]);
   }
@@ -52,15 +77,10 @@ const removeData = element => {
 
 const putRequest = e => {
   const target = e.target;
-  if (
-    target.className === 'btn-list' ||
-    target.classList.contains('btn-prev') ||
-    target.classList.contains('btn-next')
-  )
-    return;
+  if (target.className === 'btn-number') return;
   const pageNum = +target.textContent;
   if (pageNum === currentPage) return;
-  removeData(table);
+  removeItems(table, 1);
   currentPage = pageNum;
   fetchDataAndReplaceList(`${url}?_page=${pageNum}`);
   changeCurrentStyle(target);
@@ -68,9 +88,16 @@ const putRequest = e => {
 
 // todo: 중복되는 부분 모듈화
 const movePrevpage = () => {
-  removeData(table);
   currentPage -= 1;
-  if (currentPage < 1) currentPage = 1;
+  if (currentPage < 1) {
+    currentPage = 1;
+    return;
+  }
+  if (currentPage === pageShowed) {
+    removeItems(btnList, 0);
+    createBtnList();
+  }
+  removeItems(table, 1);
   const target = Array.from(btnList.children).find(
     item => item.textContent === currentPage + ''
   );
@@ -79,12 +106,19 @@ const movePrevpage = () => {
 };
 
 const moveNextpage = () => {
-  removeData(table);
   currentPage += 1;
-  if (currentPage > fullPageNum) currentPage = fullPageNum - 1;
+  if (currentPage > fullpageNum) {
+    currentPage = fullpageNum;
+    return;
+  }
+  if (currentPage === pageShowed + 1) {
+    removeItems(btnList, 0);
+    createBtnList();
+  }
   const target = Array.from(btnList.children).find(
     item => item.textContent === `${currentPage}`
   );
+  removeItems(table, 1);
   fetchDataAndReplaceList(`${url}?_page=${currentPage}`);
   changeCurrentStyle(target);
 };
@@ -97,7 +131,8 @@ const changeCurrentStyle = target => {
 };
 
 const init = () => {
-  fetchDataAndReplaceList('http://localhost:3000/posts?_page=1');
+  fetchDataAndReplaceList(`${url}?_page=1`);
+  createBtnList();
   btnList.addEventListener('click', putRequest);
   btnPrev.addEventListener('click', movePrevpage);
   btnNext.addEventListener('click', moveNextpage);
