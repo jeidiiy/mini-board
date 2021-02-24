@@ -53,6 +53,12 @@ body {
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
+      cursor: pointer;
+
+      &:hover {
+        text-decoration: underline;
+        color: #83c3ff;
+      }
     }
   }
 
@@ -73,6 +79,10 @@ body {
       &:hover {
         font-size: 1.25rem;
       }
+    }
+    .current {
+      font-size: 1.1rem;
+      color: #222;
     }
   }
 }
