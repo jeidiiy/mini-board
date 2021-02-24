@@ -21,7 +21,7 @@
   "bugs": {
     "url": "https://github.com/wscrg/mini-board/issues"
   },
-  "homepage": "https://github.com/wscrg/mini-board",
+  "homepage": "https://wscrg.github.io/mini-board",
   "devDependencies": {
     "@babel/core": "^7.13.1",
     "@babel/plugin-transform-runtime": "^7.13.2",
