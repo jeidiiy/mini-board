@@ -1,5 +1,16 @@
 import './style.scss';
 
+/**
+ * 데이터 형식
+ *  {
+      "id": 1,
+      "title": "Proin leo odio, porttitor id, consequat in, consequat ut, nulla.",
+      "name": "Guillaume Welbourn",
+      "date": "2019-05-17",
+      "views": 313
+    },
+ */
+
 const table = document.querySelector('.table');
 const btnList = document.querySelector('.btn-number');
 const btnPrev = document.querySelector('.btn-prev');
@@ -11,12 +22,20 @@ let currentPage = 1; // 현재 페이지 상태값. 기본값은 1
 let lastPageNum; // 전체 페이지 수
 let lastPageArea; // 마지막 페이지 구역.
 let btnPosition = 1; // 버튼의 위치. 기본값은 1
-let pagePosition = 0; // 페이지의 위치. 기본값은 0. 1~5까지는 0, 6~10까지는 1 ...
-let numOfData; // 데이터의 개수. 데이터를 받을 때 지정됨.
-let numOfBtn; // 버튼의 개수.
+let pagePosition = 0; // 페이지 구역. 기본값은 0. 1~5까지는 0, 6~10까지는 1 ...
+let tmpPagePosition = pagePosition; // 버튼 리렌더링을 방지하기 위해 이전과 비교하기 위한 변수
+let numOfData; // 데이터의 개수. 서버로부터 데이터를 받을 때 지정됨.
+let numOfBtn; // 버튼의 개수. 버튼을 그리기 전에 몇 개를 그릴지 계산하기 위함
 const pageShowed = 5; // 보여질 페이지 수
 const itemShowed = 10; // 보여질 아이템 수
 
+/**
+ * problem: 서버에서 마지막 페이지에 대한 정보를 얻지 못해 lastPageArea에 접근을 하지 못해(비동기 문제 때문에)
+ * 페이지를 전환할 때마다 버튼도 다시 그리게 됨
+ * 생각해보니 결국 서버에서 마지막 페이지 정보를 얻어도 비동기인 건 매한가지
+ * 그럼 버튼을 계속 그리는 건 어쩔 수 없는건가?
+ * solution: 이전 페이지 구역을 저장하는 변수를 두어 이전 페이지 구역과 달라지면 다시 그리도록 함
+ *  */
 const fetchDataAndReplaceBoard = async url => {
   const response = await fetch(url);
   const posts = await response.json();
@@ -27,7 +46,7 @@ const fetchDataAndReplaceBoard = async url => {
   }
 
   createList(posts);
-  createBtnList();
+  if (pagePosition !== tmpPagePosition || isInit) createBtnList();
 };
 
 const createList = data => {
@@ -50,16 +69,16 @@ const createList = data => {
       td.textContent = dataArr[i];
       tr.appendChild(td);
     }
-
     fragment.appendChild(tr);
   }
-
   table.appendChild(fragment);
 };
 
 const createBtnList = () => {
+  console.log('btn is rerendered');
   const fragment = document.createDocumentFragment();
 
+  // 버튼의 개수를 구하는 조건문
   if (lastPageArea === pagePosition) {
     // 마지막 페이지 구역이라면,
     numOfBtn = lastPageNum % pageShowed === 0 ? 5 : lastPageNum % pageShowed;
@@ -67,7 +86,8 @@ const createBtnList = () => {
     numOfBtn = pageShowed;
   }
 
-  if (currentPage === 1 && isInit) {
+  // 버튼을 그리는 부분
+  if (isInit && currentPage === 1) {
     // 맨 처음 로딩됐을 때,
     for (let i = 1; i <= numOfBtn; i++) {
       const btn = document.createElement('button');
@@ -105,7 +125,7 @@ const createBtnList = () => {
   }
 };
 
-// 모든 자식 노드를 삭제하는 함수
+// start부터 마지막 자식 노드까지 삭제하는 함수
 const removeItems = (element, start) => {
   const listArr = Array.from(element.children);
   for (let i = start; i < listArr.length; i++) {
@@ -127,7 +147,6 @@ const requestGet = e => {
   });
 };
 
-// todo: 중복되는 부분 모듈화
 const movePrevpage = () => {
   currentPage -= 1;
   btnPosition -= 1;
@@ -148,6 +167,7 @@ const movePrevpage = () => {
       item => item.textContent === currentPage + ''
     );
     changeCurrentStyle(target);
+    tmpPagePosition = pagePosition;
   });
 };
 
@@ -171,6 +191,7 @@ const moveNextpage = () => {
       item => item.textContent === currentPage + ''
     );
     changeCurrentStyle(target);
+    tmpPagePosition = pagePosition;
   });
 };
 
